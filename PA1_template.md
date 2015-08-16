@@ -1,0 +1,63 @@
+---
+title: "PA1_template.md"
+output: html_document
+---
+
+First step is loading and preprocessing the data.
+
+```{r, echo=TRUE}
+data<- read.csv("activity.csv")
+
+```
+Calculate the total number of steps taken per day (ignore the missing values in the dataset) and make a histogram of the total number of steps taken each day.
+```{r, echo=TRUE}
+mydata<-na.omit(data) 
+steps<-aggregate(mydata$steps, by=list(mydata$date),FUN="sum")
+names(steps)<-c("Sum of Steps", "Date")
+hist(as.numeric(steps$"Sum of Steps"))
+```
+Calculate and report the mean and median of the total number of steps taken per day. 
+```{r, echo=TRUE}
+mean<- aggregate(mydata$steps, by=list(mydata$date), FUN="mean")
+median<- aggregate(mydata$steps, by=list(mydata$date), FUN="median")
+names(mean)<- c("date", "meansteps")
+```
+
+Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis). 
+
+```{r, echo=TRUE}
+interval<- aggregate(mydata$steps, by=list(mydata$interval), FUN="mean")
+plot(interval$Group.1,interval$x, type="l",
+     main="Average number of steps across all days per each interval", 
+     xlab="5-minute Intervals (0:00 am to 23:55 pm)",ylab="Average Number of Steps Across all Days")
+```
+The 8:35 am interval, contains the maximum number of steps on average across all the days in the dataset.
+```{r, echo=TRUE}
+subset(interval, x==max(interval[,2]), select=Group.1)
+```
+
+Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs).
+```{r, echo=TRUE}
+nas<- nrow(data)-sum(complete.cases(data[,1]))
+```
+Devise a strategy for filling in all of the missing values in the dataset.
+```{r,echo=TRUE}
+missing<- merge(data,mean, by="date")
+
+library(dplyr)
+
+replaced<-for(i in 1:nrow(missing))
+{  if(is.na(missing[i,2])==TRUE) {
+  missing[i,2] <-missing[i,4]}
+  else{
+    missing[i,2] <- missing[i,2]}
+}
+```
+
+
+
+
+
+
+
+
